@@ -29,6 +29,9 @@
 <div id='showData'></div>
 </body>
 <script>
+    header_array = ["Stock#","Image", "Purchase Date","Manufacture","Model","Year","Purchase Price","Shipping","VIN","Add Cost","Sub Total","5%","Sold Price","Sold Date","Deposit Date"]
+
+
     $(document).ready(function () {
         $('#btShowImage').click(function () {
             $.getJSON("_find", function (data) {
@@ -40,12 +43,8 @@
 
                 // Extract values for the table header.
                 var col = [];
-                for (var i = 0; i < arrItems.length; i++) {
-                    for (var key in arrItems[i]) {
-                        if (col.indexOf(key) === -1) {
-                            col.push(key);
-                        }
-                    }
+                for (let i = 0; i < header_array.length; i++)  {
+                    col.push(header_array[i]);
                 }
 
                 // Create a <table> element dynamically.
