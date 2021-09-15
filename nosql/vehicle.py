@@ -39,8 +39,8 @@ class Vehicle:
     def __init__(self,
                  _id: int,
                  vin: str,
-                 manufacture: Manufacture,
-                 model: Model,
+                 manufacture: str,
+                 model: str,
                  year: int,
                  vehicle_image_gridfs: str,
                  purchase_date: datetime,
@@ -60,13 +60,13 @@ class Vehicle:
         else:
             raise ValueError('VIN must have a value')
 
-        if manufacture and type(manufacture) == Manufacture:
-            self.vehicle['manufacture'] = manufacture.name
+        if manufacture and type(str):
+            self.vehicle['manufacture'] = manufacture
         else:
             raise ValueError('Manufacture is an unknown value')
 
-        if model and type(model) == Model:
-            self.vehicle['model'] = model.name
+        if model and type(str):
+            self.vehicle['model'] = model
         else:
             raise ValueError('Model is an unknown value')
 

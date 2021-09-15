@@ -25,56 +25,69 @@
     </style>
 </head>
 <body>
+
+
 <p><input type="button" id="btShowImage" value="Click to Show Images"/></p>
 <div id='showData'></div>
 </body>
 <script>
-    header_array = ["Stock#","Image", "Purchase Date","Manufacture","Model","Year","Purchase Price","Shipping","VIN","Add Cost","Sub Total","5%","Sold Price","Sold Date","Deposit Date"]
 
+    function datetime_from_json(value) {
+        let dt = new Date(parseInt(value))
+        return ((dt.getMonth() + 1) + "/" + (dt.getDate() + 1) + "/" + dt.getFullYear());
+    }
+
+    let header_array = ["Stock#", "VIN", "Manufacture", "Model", "Year", "Image", "Purchased", "Purchase$", "Shipping$", "Add$"]
+    let data_array = ["_id", "vin", "manufacture", "model", "year", "vehicle_image_gridfs", "purchase_date", "purchase_price", "shipping_cost", "add_cost"]
 
     $(document).ready(function () {
         $('#btShowImage').click(function () {
             $.getJSON("_find", function (data) {
-                var arrItems = [];      // The array to store JSON items.
+                let results_array = [];      // The array to store JSON items.
                 $.each(data, function (key, value) {
-                    arrItems.push(value);
-                    console.log(value);
+                    results_array.push(value);
                 });
-
-                // Extract values for the table header.
-                var col = [];
-                for (let i = 0; i < header_array.length; i++)  {
-                    col.push(header_array[i]);
-                }
-
                 // Create a <table> element dynamically.
-                // Ref: https://www.encodedna.com/javascript/populate-json-data-to-html-table-using-javascript.htm
-                var table = document.createElement("table");
-                var tr = table.insertRow(-1);                   // Table row.
-                for (var i = 0; i < col.length; i++) {
-                    var th = document.createElement("th");      // Table header.
-                    th.innerHTML = col[i];
+                let table = document.createElement("table");
+                let tr = table.insertRow(-1);                   // Table row.
+                for (let i = 0; i < header_array.length; i++) {
+                    let th = document.createElement("th");      // Table header.
+                    th.innerHTML = header_array[i];
                     tr.appendChild(th);
                 }
 
                 // Add JSON data to the table as rows.
-                for (var i = 0; i < arrItems.length; i++) {
+                for (let i = 0; i < results_array.length; i++) {
                     tr = table.insertRow(-1);
 
-                    for (var j = 0; j < col.length; j++) {
-                        var tabCell = tr.insertCell(-1);
-                        if (j === 6) {      // column has image data
+                    for (let j = 0; j < header_array.length; j++) {
+                        let tabCell = tr.insertCell(-1);
+                        if (data_array[j].includes("image")) {      // column has image in the title
                             // Create an <img> element show the images.
-                            var img = document.createElement('img');
-                            img.src = "data:image/jpg;base64," +  arrItems[i].vehicle_image_gridfs;   // The image source from JSON array.
-                            tabCell.appendChild(img);
-                        } else
-                            tabCell.innerHTML = arrItems[i][col[j]];
+                            if (!results_array[i].vehicle_image_gridfs) {
+                                tabCell.innerHTML = "";
+                            } else {
+                                let img = document.createElement("img");
+                                img.src = "data:image/jpg;base64," + results_array[i]["vehicle_image_gridfs"];   // The image source from JSON array.
+                                tabCell.appendChild(img);
+                            }
+                        } else if (data_array[j].includes("date")) {
+                            tabCell.innerHTML = datetime_from_json(results_array[i][data_array[j]]["$date"]);
+                        } else if (data_array[j].includes("cost") || data_array[j].includes("price")) {
+                            tabCell.innerHTML = new Intl.NumberFormat(
+                                "en-US", {
+                                    style: "currency",
+                                    currency: "USD"
+                                }).format(results_array[i][data_array[j]]);
+                        } else {
+                            tabCell.innerHTML = results_array[i][data_array[j]];
+                        }
                     }
+
                 }
 
                 // Finally, add the newly created <table> with data to a container.
-                var divContainer = document.getElementById("showData");
+                let divContainer = document.getElementById("showData");
                 divContainer.innerHTML = "";
                 divContainer.appendChild(table);
             });
